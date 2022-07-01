@@ -55,7 +55,29 @@ const Box = styled(motion.div)<{bgPhoto:string}>`
     height: 200px;
     background-image: url("${props=> props.bgPhoto}");
     background-size: cover;
+
+    &:first-child {
+        transform-origin: center left;
+    }
+
+    &:last-child {
+        transform-origin: center right;
+    }
 `;
+
+const Info = styled(motion.div)`
+    padding: 10px;
+    background-color: ${props => props.theme.black.lighter};
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+
+    h4 {
+        text-align: center;
+        font-size: 18px;
+    }
+`
 
 const rowVariant = {
     invisible: {
@@ -66,6 +88,32 @@ const rowVariant = {
     },
     exit: {
         x: -window.outerWidth - 10
+    }
+}
+
+const boxVariant = {
+    normal: {
+        scale: 1
+    },
+    hover: {
+        scale: 1.3,
+        y: -80,
+        transition: {
+            delay: 0.5,
+            duration: 0.1,
+            type: "tween"
+        }
+    }
+}
+
+const infoVariant = {
+    hover: {
+        opacity: 1,
+        transition: {
+            delay: 0.5,
+            duration: 0.1,
+            type: "tween"
+        }
     }
 }
 
@@ -99,7 +147,11 @@ export default function Home () {
                     <Slider>
                         <AnimatePresence initial={false} onExitComplete={() => setLeaving((prev) => !prev)}>
                             <Row variants={rowVariant} key={index} transition={{ type: "tween", duration: 1 }} initial="invisible" animate="visible" exit="exit">
-                                {data?.results.slice(1).slice(offset*index, offset*index+offset).map(movie => <Box bgPhoto={makeImagePath(movie.backdrop_path || "","w500")} key={movie.id+""} >{movie.title}</Box>)}
+                                {data?.results.slice(1).slice(offset*index, offset*index+offset).map(movie => <Box whileHover="hover" variants={boxVariant} transition={{ type: "tween"}} initial="normal" bgPhoto={makeImagePath(movie.backdrop_path || "","w500")} key={movie.id+""} >
+                                    <Info variants={infoVariant}>
+                                        <h4>{movie.title}</h4>
+                                    </Info>
+                                </Box>)}
                             </Row>
                         </AnimatePresence>
                     </Slider>
