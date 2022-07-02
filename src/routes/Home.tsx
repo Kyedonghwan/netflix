@@ -2,11 +2,13 @@ import { useQuery } from "react-query";
 import { getMovies, IGetMoviesResult } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useViewportScroll } from "framer-motion";
 import { useState } from "react";
+import { useMatch, useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
     background: black;
+    height: 200vh;
 `
 
 const Loader = styled.div`
@@ -55,6 +57,7 @@ const Box = styled(motion.div)<{bgPhoto:string}>`
     height: 200px;
     background-image: url("${props=> props.bgPhoto}");
     background-size: cover;
+    cursor: pointer;
 
     &:first-child {
         transform-origin: center left;
@@ -77,6 +80,26 @@ const Info = styled(motion.div)`
         text-align: center;
         font-size: 18px;
     }
+`
+
+const Overlay = styled(motion.div)`
+    position: fixed;
+    background-color: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+`
+
+const BigMovie = styled(motion.div)`
+    position: absolute;
+    width: 40vw;
+    height: 80vh;
+    background-color: red;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
 `
 
 const rowVariant = {
@@ -118,6 +141,10 @@ const infoVariant = {
 }
 
 export default function Home () {
+    const history = useNavigate();
+
+    const bigMovieMatch = useMatch("/movies/:movieId");
+
     const {data, isLoading } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
 
     const [index, setIndex] = useState(0);
@@ -125,6 +152,8 @@ export default function Home () {
     const [leaving, setLeaving ] =useState(false);
 
     const offset= 6;
+
+    const { scrollY } = useViewportScroll();
 
     const rowClick = () => {
         if(data){
@@ -134,6 +163,10 @@ export default function Home () {
             const maxIndex = Math.floor(totalMovies / offset) -1 ;
             setIndex(prev => prev===maxIndex ? 0 :prev+1);
         }
+    }
+
+    const onBoxClicked = (movieId: number) => {
+        history(`/movies/${movieId}`);
     }
 
     return (
@@ -147,7 +180,7 @@ export default function Home () {
                     <Slider>
                         <AnimatePresence initial={false} onExitComplete={() => setLeaving((prev) => !prev)}>
                             <Row variants={rowVariant} key={index} transition={{ type: "tween", duration: 1 }} initial="invisible" animate="visible" exit="exit">
-                                {data?.results.slice(1).slice(offset*index, offset*index+offset).map(movie => <Box whileHover="hover" variants={boxVariant} transition={{ type: "tween"}} initial="normal" bgPhoto={makeImagePath(movie.backdrop_path || "","w500")} key={movie.id+""} >
+                                {data?.results.slice(1).slice(offset*index, offset*index+offset).map(movie => <Box layoutId={movie.id+""} onClick={()=> onBoxClicked(movie.id)} whileHover="hover" variants={boxVariant} transition={{ type: "tween"}} initial="normal" bgPhoto={makeImagePath(movie.backdrop_path || "","w500")} key={movie.id+""} >
                                     <Info variants={infoVariant}>
                                         <h4>{movie.title}</h4>
                                     </Info>
@@ -155,6 +188,12 @@ export default function Home () {
                             </Row>
                         </AnimatePresence>
                     </Slider>
+                        <AnimatePresence>
+                            {bigMovieMatch ? (
+                                <Overlay animate={{opacity: 1}} exit={{opacity: 0}} onClick={()=> history("/")}>
+                                <BigMovie style={{ top : scrollY.get() + 100 }} layoutId={bigMovieMatch.params.movieId} /></Overlay>
+                            ) : null}
+                        </AnimatePresence>
                 </>
             )}
         </Wrapper>
