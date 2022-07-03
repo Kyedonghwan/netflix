@@ -94,12 +94,59 @@ const Overlay = styled(motion.div)`
 
 const BigMovie = styled(motion.div)`
     position: absolute;
-    width: 40vw;
-    height: 80vh;
-    background-color: red;
+    width: 500px;
+    height: 513px;
+    background-color: ${props => props.theme.black.darker};
     left: 0;
     right: 0;
     margin: 0 auto;
+    border-radius: 15px;
+    overflow: hidden;
+`
+
+const BigMovieDetail = styled.div`
+    div {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        white-space: nowrap;
+
+        &::before {
+            border-radius: 15px;
+            position: absolute;
+            content: "";
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border: 1px solid ${props => props.theme.white.darker};
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            bottom: 0;
+            width: 100%;
+            background-image: linear-gradient(transparent, black);
+        }
+
+        img {
+            display: block;
+            width: 100%;
+        }
+    }
+
+    h2 {    
+        font-size: 30px;
+        text-align: center;
+        font-weight: 700;
+        margin: 30px 0;
+    }
+
+    p {
+        padding: 20px;
+    }
 `
 
 const rowVariant = {
@@ -165,6 +212,8 @@ export default function Home () {
         }
     }
 
+    const movieData = bigMovieMatch?.params.movieId && data?.results.find(item => item.id+"" === bigMovieMatch.params.movieId);
+
     const onBoxClicked = (movieId: number) => {
         history(`/movies/${movieId}`);
     }
@@ -188,12 +237,23 @@ export default function Home () {
                             </Row>
                         </AnimatePresence>
                     </Slider>
-                        <AnimatePresence>
-                            {bigMovieMatch ? (
-                                <Overlay animate={{opacity: 1}} exit={{opacity: 0}} onClick={()=> history("/")}>
-                                <BigMovie style={{ top : scrollY.get() + 100 }} layoutId={bigMovieMatch.params.movieId} /></Overlay>
-                            ) : null}
-                        </AnimatePresence>
+                    <AnimatePresence>
+                        {bigMovieMatch ? (
+                            <Overlay animate={{opacity: 1}} exit={{opacity: 0}} onClick={()=> history("/")}>
+                                <BigMovie style={{ top : scrollY.get() + 100 }} layoutId={bigMovieMatch.params.movieId} >
+                                    { movieData && <BigMovieDetail>
+                                        <div>
+                                            <img src={makeImagePath(movieData.backdrop_path , "w500")} />
+                                        </div>
+                                        <h2>{movieData.title}</h2>
+                                        <p>{movieData.overview}</p>
+                                    </BigMovieDetail>
+                                    
+                                    }
+                                </BigMovie>
+                            </Overlay>
+                        ) : null}
+                    </AnimatePresence>
                 </>
             )}
         </Wrapper>

@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { motion, useAnimation, useViewportScroll } from "framer-motion";
-import { Link, useMatch } from "react-router-dom";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useRecoilBridgeAcrossReactRoots_UNSTABLE } from "recoil";
+import { useForm } from "react-hook-form";
 
 const Nav = styled(motion.nav)`
     display: flex;
@@ -69,7 +70,7 @@ const Item = styled.li<{routeMatch : boolean}>`
     }
 `;
 
-const Search = styled.span`
+const Search = styled.form`
   color: white;
   display: flex;
   align-items: center;
@@ -111,6 +112,10 @@ const navVariants = {
     }
 }
 
+interface IForm {
+    keyword: string;
+}
+
 export default function Header () {
     const [searchOpen, setSearchOpen ] = useState(false);
     const tvMatch = useMatch("tv");
@@ -128,6 +133,14 @@ export default function Header () {
             }
         })
     }, [scrollY]);
+
+    const { register, handleSubmit } = useForm<IForm>();
+
+    const history = useNavigate();
+
+    const onValid = (data: IForm) => {
+        history(`/search?keyword=${data.keyword}`);
+    }
 
     return (
         <Nav variants={navVariants} animate={animationNav} >
@@ -149,7 +162,7 @@ export default function Header () {
                 </Items>
             </Col>
             <Col>
-                <Search>
+                <Search onSubmit={handleSubmit(onValid)}>
                     <motion.svg
                         onClick={toggleSearch}
                         fill="currentColor"
@@ -164,7 +177,7 @@ export default function Header () {
                         clipRule="evenodd"
                         ></path>
                     </motion.svg>
-                    <Input transition={{type: "linear"}} animate={{ scaleX: searchOpen ? 1 : 0 }} placeholder="Search for movie or tv show..." />
+                    <Input {...register("keyword", {required: true, minLength: 2})} transition={{type: "linear"}} animate={{ scaleX: searchOpen ? 1 : 0 }} placeholder="Search for movie or tv show..." />
                 </Search>
             </Col>
         </Nav>
