@@ -9,6 +9,15 @@ interface IMovie {
     overview: string;
 }
 
+interface ITv {
+    backdrop_path: string,
+    overview: string,
+    id: number,
+    popularity: number,
+    poster_path: string,
+    name: string
+}
+
 export interface IGetMoviesResult {
     dates: {
     maximum: string;
@@ -20,6 +29,15 @@ export interface IGetMoviesResult {
     total_results: number;
 }
 
+export interface ITvOnTheAir {
+    page: number,
+    results: ITv[]
+}
+
 export function getMovies() {
     return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`).then(response => response.json());
+}
+
+export function getTv() {
+    return fetch(`${BASE_PATH}/tv/on_the_air?api_key=${API_KEY}`).then(response => response.json());
 }
