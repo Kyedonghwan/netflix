@@ -203,7 +203,7 @@ export default function Home () {
     const { scrollY } = useViewportScroll();
 
     const rowClick = () => {
-        if(data){
+        if(data) {
             if( leaving ) return;
             setLeaving(true);
             const totalMovies = data.results.length - 1;

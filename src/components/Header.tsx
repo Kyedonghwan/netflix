@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { motion, useAnimation, useViewportScroll } from "framer-motion";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useRecoilBridgeAcrossReactRoots_UNSTABLE } from "recoil";
 import { useForm } from "react-hook-form";
 
 const Nav = styled(motion.nav)`
@@ -16,6 +15,7 @@ const Nav = styled(motion.nav)`
     font-size: 14px;
     padding: 20px 60px;
     color: white;
+    z-index: 990;
 `;
 
 const Col = styled.div`
